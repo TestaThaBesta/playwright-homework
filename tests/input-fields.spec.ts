@@ -46,6 +46,7 @@ test('Cancel Pet Type Update', async ({ page }) => {
     const inputFields = new InputFields(page);
     let rowCount = await inputFields.petTypeRowLocator.count();
 
+    //update original pet type to moose
     for (let i = 1; i < rowCount + 1; i++) {
         let index = rowCount - i
         const petTypes = await page.locator(`[id="${index}"]`).inputValue();
@@ -59,6 +60,8 @@ test('Cancel Pet Type Update', async ({ page }) => {
     await page.waitForLoadState('networkidle');
     await inputFields.nameLocator.fill('moose');
     await expect(inputFields.nameLocator).toHaveValue('moose');
+    
+    //cancel the update and check for original value
     await inputFields.cancelBtnLocator.click();
 
     await expect(inputFields.petTypeRowLocator).toHaveCount(6);
@@ -77,6 +80,7 @@ test('Validation of Pet Type Name is Required', async ({ page }) => {
     const inputFields = new InputFields(page);
     let rowCount = await inputFields.petTypeRowLocator.count();
 
+    //find the lizard pet type and open its edit form
     for (let i = 1; i < rowCount + 1; i++) {
         let index = rowCount - i
         const petTypes = await page.locator(`[id="${index}"]`).inputValue();
@@ -87,11 +91,15 @@ test('Validation of Pet Type Name is Required', async ({ page }) => {
     }
     await expect(inputFields.editPetTypeLocator).toHaveText('Edit Pet Type');
     await expect(inputFields.nameLocator).toHaveValue('lizard');
+
+    //clear the name and verify the required validation message
     await inputFields.nameLocator.clear();
     await expect(inputFields.nameRequiredLocator).toHaveText('Name is required');
     await inputFields.updateBtnLocator.click();
     await expect(inputFields.editPetTypeLocator).toHaveText('Edit Pet Type');
     await expect(page).toHaveURL(/edit/);
+
+    //cancel the edit and verify the pet types list is displayed
     await inputFields.cancelBtnLocator.click();
     await expect(inputFields.petHeadingLocator).toHaveText('Pet Types');
 });
